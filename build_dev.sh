@@ -1,0 +1,1 @@
+crystal build --progress -o ./bin/kingdom ./src/main.cr

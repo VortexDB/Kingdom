@@ -1,0 +1,18 @@
+name: kingdom
+version: 0.1.0
+
+authors:
+  - grabli66 <grabli66@gmail.com>
+
+description: |
+  Microservice superviser
+
+dependencies:
+  msgpack:
+    github: crystal-community/msgpack-crystal
+
+# development_dependencies:
+#   webmock:
+#     github: manastech/webmock.cr
+
+license: MIT
