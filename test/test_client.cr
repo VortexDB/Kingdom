@@ -1,10 +1,5 @@
-spawn do
-    loop do
-        dat = gets
-        puts dat
-    end
-end
+require "../kingdom/**"
 
-loop do
-    sleep 1
+Kingdom.connect do
+    Kingdom.log("Hello, world!")
 end

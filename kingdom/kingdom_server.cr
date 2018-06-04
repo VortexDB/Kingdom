@@ -1,3 +1,24 @@
+require "logger"
+
+# Client of kingdom server
+class KingdomClient
+  # Process path
+  getter path : String
+
+  # Process
+  getter process : Process
+
+  # IO for data input
+  getter io : KingdomIO
+
+  # Logger
+  getter log : Logger
+
+  def initialize(@process, @path, @io)
+    @log = Logger.new(STDOUT)
+  end
+end
+
 # Host for services
 class KingdomServer
   # Services dir
@@ -7,7 +28,7 @@ class KingdomServer
   SLEEP_TIME = 5
 
   # Delay befor ping in seconds
-  PING_DELAY = 1
+  PING_DELAY = 5
 
   # Get services filename
   private def getFiles : Array(String)?
@@ -31,30 +52,42 @@ class KingdomServer
   private def startServices(files : Array(String)) : Void
     files.each do |file|
       spawn do
-        val = Process.run(file) do |proc|
+        val = Process.run(file) do |proc|          
           io = KingdomIO.new(proc.input, proc.output)
-          processService(proc, io)
+          client = KingdomClient.new(proc, file, io)
+          processService(proc, client)
         end
       end
     end
   end
 
   # Handle service process
-  private def processService(process : Process, io : KingdomIO)
+  private def processService(process : Process, client : KingdomClient)
     # Starts ping timer
     Timer.new(seconds: PING_DELAY) do |timer|
-      io.send(PingContract.new)
+      client.io.write(PingContract.new)
     end
 
     loop do
-      message = io.read
-      processMessage(message)
+      message = client.io.read
+      processMessage(client, message)
     end
   end
 
   # Process message from client
-  private def processMessage(message : KingdomContract) : Void
-      
+  private def processMessage(client : KingdomClient, message : KingdomContract) : Void
+    p message
+
+    case message
+    when PingContract
+      client.io.write(PongContract.new)
+    when PongContract
+      # TODO: reset timeout
+    when LogContract
+      client.log.info(message.message)
+    else
+      puts "Unknown contract"
+    end
   end
 
   # Block thread forewer

@@ -38,16 +38,27 @@ end
 
 # Ping service
 class PingContract < KingdomContract
+  mapping(
+    data: Bool
+  )
+
+  def initialize(@data = true)
+  end
 end
 
 # Ping response
 class PongContract < KingdomContract
+  mapping(
+    data: Bool
+  )
+
+  def initialize(@data = true)
+  end
 end
 
 # Log message
 class LogContract < KingdomContract
     mapping(
-        message: String,
-        date: Int64
+        message: String
     )
 end
