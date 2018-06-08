@@ -2,6 +2,8 @@ require "logger"
 
 # Client of kingdom server
 class KingdomClient
+  LOGS_PATH = "logs"
+
   # Process path
   getter path : String
 
@@ -14,8 +16,19 @@ class KingdomClient
   # Logger
   getter log : Logger
 
-  def initialize(@process, @path, @io)
-    @log = Logger.new(STDOUT)
+  # Prepare log directory
+  private def getLogFile(path : String)    
+    logPath = File.join(LOGS_PATH, path)
+    if !File.exists?(logPath)
+      Dir.mkdir_p(logPath)
+    end    
+
+    logFilePath = File.join(logPath, "logger.log")
+    return File.new(logFilePath, "w")
+  end
+
+  def initialize(@process, @path, @io)        
+    @log = Logger.new(getLogFile(@path))
   end
 end
 
