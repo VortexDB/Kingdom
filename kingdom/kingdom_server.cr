@@ -1,7 +1,8 @@
 require "logger"
+require "yaml"
 
 # Client of kingdom server
-class KingdomClient
+private class KingdomClient
   LOGS_PATH = "logs"
 
   # Process path
@@ -34,9 +35,6 @@ end
 
 # Host for services
 class KingdomServer
-  # Services dir
-  SERVICES_DIR = "services"
-
   # Sleep time in seconds
   SLEEP_TIME = 5
 
@@ -45,19 +43,19 @@ class KingdomServer
 
   # Get services filename
   private def getFiles : Array(String)?
-    return unless Dir.exists?(SERVICES_DIR)
-
     files = Array(String).new
+    data = YAML.parse(File.read("kingdom.yaml"))
+    services = data["services"]        
+    services.each do |name, items|
+      path = File.join(".", name.to_s)
+      case items.raw
+      when Hash
+        path? = items["path"]?
+        path = path?.to_s if path
+      end      
 
-    Dir.each_child(SERVICES_DIR) do |dir|
-      path = File.join(SERVICES_DIR, dir)
-      Dir.each_child(path) do |fileName|
-        filePath = File.join(SERVICES_DIR, dir, fileName)
-        files << filePath
-      end
+      files << path
     end
-
-    return if files.empty?
     return files
   end
 
@@ -112,7 +110,7 @@ class KingdomServer
 
   # Start server
   def start : Void
-    files = getFiles()
+    files = getFiles()        
     if files.nil?
       puts "No services to process"
       exit
